@@ -1,8 +1,10 @@
+import csv
 
 
 # first we iterate over values in dictionary
 # to get total value of all keys
 def display_inventory(inventory):
+    
     values = inventory.values()
     inv_total = 0
     for value in values:
@@ -18,15 +20,15 @@ def display_inventory(inventory):
 
 
 # Adds to the inventory dictionary a list of items from added_items.
-def add_to_inventory(inventory, added_items):
-
+def add_to_inventory(inventory, to_add):
+    
     counter = 0
-    while counter < len(added_items):
-        if added_items[counter] not in inventory:
-            inventory[added_items[counter]] = 1
+    while counter < len(to_add):
+        if to_add[counter] not in inventory:
+            inventory[to_add[counter]] = 1
         else:
             for i in inventory:
-                if i == added_items[counter]:
+                if i == to_add[counter]:
                     inventory[i] += 1
             counter += 1
     return(inventory)
@@ -39,8 +41,12 @@ def add_to_inventory(inventory, added_items):
 # - "count,desc" means the table is ordered by count (of items in the inventory)
 #   in descending order
 # - "count,asc" means the table is ordered by count in ascending order
-def print_table(inventory, width_1, width_2, headers, order='count,asc'):
+def print_table(inventory, order='count,asc'):
 
+    headers = '''INVENTORY:\nCOUNT           ITEM NAME
+-------------------------'''
+    width_1 = 5
+    width_2 = 19
     if order is None:
         print(headers)
         for key, value in inventory.items():
@@ -69,16 +75,40 @@ def print_table(inventory, width_1, width_2, headers, order='count,asc'):
         print("Total number of items: %d\n-------------------------" % total_number_of_items)
 
 
+def import_inventory(inventory, filename="import_inventory.csv"):
+
+    with open(filename, 'r') as filename:
+        imported_items = filename.read()
+        loot = imported_items.split(',')
+        add_to_inventory(inventory, to_add=loot)
+    return inventory
+
+
+def export_inventory(inventory, filename="export_inventory.csv"):
+
+    counter = 0
+    keys = list(inventory.keys())
+    values = list(inventory.values())
+    text = ""
+    values_list_lenght = len(values)
+    while counter < values_list_lenght:
+        text += (keys[counter] + ',') * values[counter]
+        counter += 1
+    text = text[:-1]
+    with open(filename, 'w') as filename:
+        filename.write(text)
+
+
 def main():
 
     inventory = {'rope': 1, 'torch': 6, 'gold coin': 42,
                  'dagger': 1, 'arrow': 12}
-    added_items = ['knife', 'dagger', 'dagger', 'axe']
-    headers = '''INVENTORY:\nCOUNT           ITEM NAME
--------------------------'''
-    width_1 = 5
-    width_2 = 19
+    added_items = ["battleaxe", "spear", "bow", "bow"]
     display_inventory(inventory)
-    add_to_inventory(inventory, added_items)
-    print_table(inventory, width_1, width_2, headers, order='count,desc')
+    add_to_inventory(inventory, to_add=added_items)
+    print_table(inventory, order='count,desc')
+    import_inventory(inventory, "test_inventory.csv")
+    print_table(inventory, order='count,asc')
+    export_inventory(inventory, "export_invenory.csv")
+
 main()
